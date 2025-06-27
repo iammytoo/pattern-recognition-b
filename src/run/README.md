@@ -2,11 +2,16 @@
 
 メインパイプライン実行スクリプト
 
-## ファイル構成
+## ディレクトリ構成
 
-- `concat_embedding_with_tree.py`: 完全なML パイプライン
+```
+run/
+└── concat_embedding_with_tree/
+    ├── regression.py      # 回帰パイプライン
+    └── classification.py  # 分類パイプライン
+```
 
-## concat_embedding_with_tree.py
+## パイプライン概要
 
 ### 概要
 日本語ユーモア認識の完全なMLパイプライン。データ読み込みから結果保存まで一貫した処理。
@@ -14,20 +19,30 @@
 ### パイプライン実行
 
 ```bash
-# Docker環境（推奨）
-docker-compose run --rm pattern-recognition python src/run/concat_embedding_with_tree.py
+# 回帰パイプライン（推奨）
+docker-compose run --rm pattern-recognition python src/run/concat_embedding_with_tree/regression.py
+
+# 分類パイプライン
+docker-compose run --rm pattern-recognition python src/run/concat_embedding_with_tree/classification.py
 ```
 
-### 処理ステップ
+### 共通処理ステップ
 
 1. **データセット読み込み**: Japanese humor evaluation dataset
 2. **埋め込み処理**: Japanese CLIPで512次元ベクトル生成
-    1. お題 (text/image) -> 512次元ベクトル
-    2. 回答 (text)       -> 512次元ベクトル
-    3. concat(お題, 回答) -> 1024次元DataFrame
-3. **PCA圧縮**: 特徴量次元削減
-4. **XGBoost訓練**: ハイパーパラメータ最適化付きモデル訓練
-5. **評価・保存**: メトリクス計算と可視化
+    - お題 (text/image) -> 512次元ベクトル
+    - 回答 (text) -> 512次元ベクトル
+    - concat(お題, 回答) -> 1024次元DataFrame
+3. **PCA圧縮**: 特徴量次元削減（1024→256次元）
+
+### 回帰タスク（regression.py）
+4. **XGBoost回帰**: ユーモアスコア回帰（連続値予測）
+5. **評価・保存**: RMSE, R²など + 予測プロット
+
+### 分類タスク（classification.py）
+4. **スコア変換**: 四捨五入 + 0-3クラス変換
+5. **XGBoost分類**: ユーモアクラス分類
+6. **評価・保存**: Accuracy, F1など + 混同行列
 
 ### グローバル設定
 
