@@ -1,11 +1,11 @@
 # Embedding モジュール
 
-日本語テキストと画像の埋め込み処理を行うモジュール
+日本語テキストと画像の埋め込み処理
 
 ## ファイル構成
 
-- `text2vec.py`: 日本語BERTを使用したテキスト埋め込み
-- `jp_clip.py`: Japanese CLIPを使用した画像・テキスト埋め込み
+- `text2vec.py`: Japanese BERTテキスト埋め込み
+- `jp_clip.py`: Japanese CLIPマルチモーダル埋め込み
 
 ## text2vec.py - 日本語テキスト埋め込み
 
@@ -102,40 +102,3 @@ for i, text_probs in enumerate(similarities):
 | 主な用途 | テキスト類似度、分類 | マルチモーダル類似度 |
 | 複数入力対応 | ✅ | ✅ |
 | バッチ処理 | ✅ | ✅ |
-
-## 実行方法
-
-### Docker環境（推奨）
-```bash
-# jp_clip.pyのテスト
-docker-compose run --rm pattern-recognition python src/embedding/jp_clip.py
-
-# text2vec.pyのテスト
-docker-compose run --rm pattern-recognition python src/embedding/text2vec.py
-```
-
-### ローカル環境
-```bash
-# 依存関係の問題でmacOSでは推奨しません
-uv run src/embedding/jp_clip.py
-uv run src/embedding/text2vec.py
-```
-
-## パフォーマンス
-
-### バッチサイズの推奨値
-- **jp_clip.py**: batch_size=16（デフォルト）
-- **text2vec.py**: batch_size=16（デフォルト）
-
-### デバイス選択
-両モジュールとも自動的に最適なデバイスを選択：
-1. CUDA（NVIDIA GPU）
-2. MPS（Apple Silicon）
-3. CPU（フォールバック）
-
-## 注意事項
-
-1. **依存関係**: japanese-clipはsentencepiece==0.1.94が必要
-2. **macOS問題**: sentencepieceのコンパイル問題があるためDocker推奨
-3. **メモリ使用量**: 大量の画像処理時はバッチサイズを調整
-4. **互換性**: jp_clip.pyのテキスト埋め込みはCLIP用（BERT埋め込みとは異なる）

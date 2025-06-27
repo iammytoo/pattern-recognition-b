@@ -100,37 +100,3 @@ image_data = dataset['train'].filter(lambda x: x['odai_type'] == 'image')
 # テキストタイプのデータのみを取得  
 text_data = dataset['train'].filter(lambda x: x['odai_type'] == 'text')
 ```
-
-## 埋め込み処理に向けた考慮事項
-
-### 1. データタイプ別の処理方針
-- **Image Type**: 画像 + responseテキストのマルチモーダル埋め込み
-- **Text Type**: odaiテキスト + responseテキストの組み合わせ
-
-### 2. 埋め込み対象の候補
-1. **画像-テキストペア** (Image Type)
-   - 画像 ↔ response の類似度計算
-   - Japanese CLIPの画像・テキスト埋め込み活用
-
-2. **テキスト-テキストペア** (Text Type)  
-   - odai ↔ response の関係性
-   - BERTまたはCLIPのテキスト埋め込み
-
-3. **スコア予測**
-   - 埋め込みベクトル → ユーモアスコア予測
-   - 回帰またはランキング学習
-
-### 3. バッチ処理の考慮点
-- 画像データのメモリ使用量
-- 異なるデータタイプの混在処理
-- 効率的なバッチサイズの設定
-
-## 実行方法
-
-```bash
-# Docker環境での実行
-docker-compose run --rm pattern-recognition python src/dataloader/dataloader.py
-
-# ローカル環境での実行
-uv run src/dataloader/dataloader.py
-```
