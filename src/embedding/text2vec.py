@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 import torch
 from transformers import BertTokenizer, BertModel
 from typing import List, Union, Optional
@@ -134,6 +133,7 @@ class JapaneseBertEmbedder:
 
 
 if __name__ == "__main__":
+    from sklearn.metrics.pairwise import cosine_similarity
     # 使用例
     embedder = JapaneseBertEmbedder()
     
