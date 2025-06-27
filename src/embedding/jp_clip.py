@@ -1,8 +1,9 @@
-import torch
-import numpy as np
-from PIL import Image
-from typing import List, Union, Optional
+from typing import List, Optional, Union
+
 import japanese_clip as ja_clip
+import numpy as np
+import torch
+from PIL import Image
 
 
 class JapaneseClipImageEmbedder:

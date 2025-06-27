@@ -203,21 +203,18 @@ class DatasetEmbeddingProcessor:
         
         return df
     
-    def save_dataframe(self, df: pd.DataFrame, file_name: str, format: str = 'csv') -> None:
+    def save_dataframe(self, df: pd.DataFrame, filepath: str, format: str = 'csv') -> None:
         """
         DataFrameをファイルに保存
         
         Args:
             df: 保存するDataFrame
-            file_name: 保存先ファイル名
+            filepah: 保存先パス
             format: 保存形式 ('csv', 'parquet', 'pickle')
         """
         # dataディレクトリを作成
         data_dir = "data"
         os.makedirs(data_dir, exist_ok=True)
-        
-        # ファイルパスを調整
-        filepath = os.path.join(data_dir, file_name)
         
         if format == 'csv':
             df.to_csv(filepath, index=False)

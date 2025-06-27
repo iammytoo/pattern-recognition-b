@@ -1,7 +1,8 @@
+from typing import List, Optional, Union
+
 import numpy as np
 import torch
-from transformers import BertTokenizer, BertModel
-from typing import List, Union, Optional
+from transformers import BertModel, BertTokenizer
 
 
 class JapaneseBertEmbedder:
