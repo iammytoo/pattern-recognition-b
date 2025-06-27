@@ -46,6 +46,7 @@ class XGBoostRegressor:
             'eval_metric': 'rmse',
             'random_state': self.random_state,
             'verbosity': 0,
+            'early_stopping_rounds': 50,
             
             # 最適化対象パラメータ
             'n_estimators': trial.suggest_int('n_estimators', 100, 2000),
@@ -63,7 +64,6 @@ class XGBoostRegressor:
         model.fit(
             X_train, y_train,
             eval_set=[(X_val, y_val)],
-            early_stopping_rounds=50,
             verbose=False
         )
         
@@ -91,7 +91,9 @@ class XGBoostRegressor:
         """
         print(f"ハイパーパラメータ最適化開始（{n_trials}試行）...")
         
-        study = optuna.create_study(direction='minimize', random_state=self.random_state)
+        # TPESamplerで乱数シードを設定
+        sampler = optuna.samplers.TPESampler(seed=self.random_state)
+        study = optuna.create_study(direction='minimize', sampler=sampler)
         study.optimize(
             lambda trial: self.objective(trial, X_train, y_train, X_val, y_val),
             n_trials=n_trials,
@@ -140,14 +142,14 @@ class XGBoostRegressor:
             })
         
         print("モデル訓練中...")
+        # Early stopping設定を初期化時に追加
+        params['early_stopping_rounds'] = 100
         self.model = xgb.XGBRegressor(**params)
         
-        # Early stopping付きで訓練
+        # 訓練実行
         self.model.fit(
             X_train, y_train,
             eval_set=[(X_train, y_train), (X_val, y_val)],
-            eval_names=['train', 'validation'],
-            early_stopping_rounds=100,
             verbose=50
         )
         

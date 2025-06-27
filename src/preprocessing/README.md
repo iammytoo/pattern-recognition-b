@@ -54,7 +54,7 @@ columns = [
 
 #### 基本的な使用方法
 ```python
-from src.preprocessing.embedding_processor import DatasetEmbeddingProcessor
+from src.preprocessing.embedding_processor import EmbeddingProcessor
 from src.dataloader.dataloader import Dataloader
 
 # データセット読み込み
@@ -62,7 +62,7 @@ dataloader = Dataloader()
 dataset = dataloader.get_dataset()
 
 # 埋め込み処理クラス初期化
-processor = DatasetEmbeddingProcessor()
+processor = EmbeddingProcessor()
 
 # 訓練データを処理
 train_df = processor.process_dataset_to_dataframe(

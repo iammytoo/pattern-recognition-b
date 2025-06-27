@@ -12,6 +12,7 @@ seaborn>=0.13.2
 sentencepiece==0.1.94
 torch>=2.7.1
 torchvision>=0.22.1
+tqdm>=4.66.0
 transformers>=4.21.0,<4.45.0
 xgboost>=2.0.0
 git+https://github.com/rinnakk/japanese-clip.git

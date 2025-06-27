@@ -1,14 +1,14 @@
-import os
 from typing import Dict, List, Optional
 
 from datasets import Dataset
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from src.embedding.jp_clip import JapaneseClipImageEmbedder
 
 
-class DatasetEmbeddingProcessor:
+class EmbeddingProcessor:
     def __init__(self, model_name: str = "rinna/japanese-clip-vit-b-16", device: Optional[str] = None):
         """
         データセット埋め込み処理クラス
@@ -28,23 +28,27 @@ class DatasetEmbeddingProcessor:
             batch_size: バッチサイズ
             
         Returns:
-            pandas DataFrame with columns [odai/image_1, ..., odai/image_512, response_1, ..., response_512, score]
+            pandas DataFrame with columns [odai_id, type, odai_embed_1, ..., odai_embed_512, response_embed_1, ..., response_embed_512, score]
         """
         print(f"データセット処理開始: {len(dataset)}件")
         
         # 結果を格納するリスト
         processed_data = []
         
-        # バッチ処理
-        for i in range(0, len(dataset), batch_size):
-            batch_end = min(i + batch_size, len(dataset))
-            batch_data = dataset[i:batch_end]
-            
-            print(f"バッチ処理中: {i+1}-{batch_end}/{len(dataset)}")
-            
-            # バッチ内の各データを処理
-            batch_embeddings = self._process_batch(batch_data)
-            processed_data.extend(batch_embeddings)
+        # バッチ処理（プログレスバー付き）
+        total_batches = (len(dataset) + batch_size - 1) // batch_size
+        with tqdm(total=total_batches, desc="Embedding処理", unit="batch") as pbar:
+            for i in range(0, len(dataset), batch_size):
+                batch_end = min(i + batch_size, len(dataset))
+                batch_data = dataset[i:batch_end]
+                
+                # バッチ内の各データを処理
+                batch_embeddings = self._process_batch(batch_data)
+                processed_data.extend(batch_embeddings)
+                
+                # プログレスバーを更新
+                pbar.set_postfix({"処理済み": f"{batch_end}/{len(dataset)}"})
+                pbar.update(1)
         
         # DataFrameに変換
         df = self._create_dataframe(processed_data)
@@ -117,7 +121,7 @@ class DatasetEmbeddingProcessor:
             response_embeddings = response_embeddings.reshape(1, -1)
         
         # 結果を結合
-        for i, (odai_id, img_emb, resp_emb, score) in enumerate(zip(odai_ids,image_embeddings, response_embeddings, scores)):
+        for odai_id, img_emb, resp_emb, score in zip(odai_ids, image_embeddings, response_embeddings, scores):
             result = {
                 'odai_id': odai_id,
                 'odai_type': 'image',
@@ -159,7 +163,7 @@ class DatasetEmbeddingProcessor:
             response_embeddings = response_embeddings.reshape(1, -1)
         
         # 結果を結合
-        for i, (odai_id, odai_emb, resp_emb, score) in enumerate(zip(odai_ids, odai_embeddings, response_embeddings, scores)):
+        for odai_id, odai_emb, resp_emb, score in zip(odai_ids, odai_embeddings, response_embeddings, scores):
             result = {
                 'odai_id': odai_id,
                 'odai_type': 'text',
@@ -182,9 +186,9 @@ class DatasetEmbeddingProcessor:
             pandas DataFrame
         """
         # カラム名を生成
-        odai_image_cols = [f"odai_image_{i+1}" for i in range(512)]
-        response_cols = [f"response_{i+1}" for i in range(512)]
-        columns = ['odai_id', 'type'] + odai_image_cols + response_cols + ['score']
+        odai_embed_cols = [f"odai_embed_{i+1}" for i in range(512)]
+        response_embed_cols = [f"response_embed_{i+1}" for i in range(512)]
+        columns = ['odai_id', 'type'] + odai_embed_cols + response_embed_cols + ['score']
         
         # データを行列に変換
         rows = []
@@ -203,30 +207,6 @@ class DatasetEmbeddingProcessor:
         
         return df
     
-    def save_dataframe(self, df: pd.DataFrame, filepath: str, format: str = 'csv') -> None:
-        """
-        DataFrameをファイルに保存
-        
-        Args:
-            df: 保存するDataFrame
-            filepah: 保存先パス
-            format: 保存形式 ('csv', 'parquet', 'pickle')
-        """
-        # dataディレクトリを作成
-        data_dir = "data"
-        os.makedirs(data_dir, exist_ok=True)
-        
-        if format == 'csv':
-            df.to_csv(filepath, index=False)
-        elif format == 'parquet':
-            df.to_parquet(filepath, index=False)
-        elif format == 'pickle':
-            df.to_pickle(filepath)
-        else:
-            raise ValueError(f"サポートされていない形式: {format}")
-        
-        print(f"DataFrame保存完了: {filepath}")
-
 
 if __name__ == "__main__":
     # 使用例
@@ -237,7 +217,7 @@ if __name__ == "__main__":
     dataset = dataloader.get_dataset()
     
     # 埋め込み処理クラスを初期化
-    processor = DatasetEmbeddingProcessor()
+    processor = EmbeddingProcessor()
     
     # 小さなサンプルでテスト（最初の10件）
     sample_dataset = dataset['train'].select(range(10))
