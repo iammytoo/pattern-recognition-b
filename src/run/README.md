@@ -61,7 +61,7 @@ docker-compose run --rm pattern-recognition python src/run/concat_embedding_with
 
 ### タスク別後処理
 **回帰**: ユーモアスコア回帰（0-4連続値） → RMSE, R²評価
-**分類**: スコア四捨五入→0-3クラス変換 → Accuracy, F1評価
+**分類**: スコア四捨五入→0-4クラス分類（5値） → Accuracy, F1評価
 
 ### グローバル設定
 

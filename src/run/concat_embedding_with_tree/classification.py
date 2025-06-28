@@ -190,45 +190,40 @@ def apply_pca_compression(train_df, validation_df, test_df):
 
 def convert_scores_to_classes(y_train, y_val, y_test):
     """
-    スコアを四捨五入して整数クラスに変換し、1-4の範囲にクリップして0-3に変換
+    スコアを四捨五入して整数クラスに変換し、0-4の範囲にクリップ（5値分類）
     
     Args:
         y_train, y_val, y_test: 元のスコア
         
     Returns:
-        tuple: (y_train_class, y_val_class, y_test_class) - 0-3のクラス
+        tuple: (y_train_class, y_val_class, y_test_class) - 0-4のクラス
     """
-    print("\n--- スコアをクラスに変換 ---")
+    print("\n--- スコアをクラスに変換（5値分類：0,1,2,3,4） ---")
     
     # 四捨五入して整数化
     y_train_class = np.round(y_train).astype(int)
     y_val_class = np.round(y_val).astype(int)
     y_test_class = np.round(y_test).astype(int)
     
-    # 四捨五入前の分布を確認
+    # 四捨五入後の範囲外値チェック
     print("四捨五入後の範囲外値チェック:")
     all_classes = np.concatenate([y_train_class, y_val_class, y_test_class])
-    out_of_range = all_classes[(all_classes < 1) | (all_classes > 4)]
+    out_of_range = all_classes[(all_classes < 0) | (all_classes > 4)]
     if len(out_of_range) > 0:
         print(f"  範囲外値発見: {np.unique(out_of_range)} ({len(out_of_range)}件)")
     else:
         print("  範囲外値なし")
     
-    # 1-4の範囲にクリップ
-    y_train_class = np.clip(y_train_class, 1, 4)
-    y_val_class = np.clip(y_val_class, 1, 4)
-    y_test_class = np.clip(y_test_class, 1, 4)
-    
-    # XGBoostのために0-3に変換 (1->0, 2->1, 3->2, 4->3)
-    y_train_class = y_train_class - 1
-    y_val_class = y_val_class - 1
-    y_test_class = y_test_class - 1
+    # 0-4の範囲にクリップ
+    y_train_class = np.clip(y_train_class, 0, 4)
+    y_val_class = np.clip(y_val_class, 0, 4)
+    y_test_class = np.clip(y_test_class, 0, 4)
     
     # クラス分布を表示
-    print("最終クラス分布 (0=元クラス1, 1=元クラス2, 2=元クラス3, 3=元クラス4):")
-    print(f"Train: {np.bincount(y_train_class)}")
-    print(f"Val  : {np.bincount(y_val_class)}")
-    print(f"Test : {np.bincount(y_test_class)}")
+    print("最終クラス分布 (5値分類: 0,1,2,3,4):")
+    print(f"Train: {np.bincount(y_train_class, minlength=5)}")
+    print(f"Val  : {np.bincount(y_val_class, minlength=5)}")
+    print(f"Test : {np.bincount(y_test_class, minlength=5)}")
     
     unique_classes = np.unique(np.concatenate([y_train_class, y_val_class, y_test_class]))
     print(f"総クラス数: {len(unique_classes)} (クラス: {unique_classes})")
