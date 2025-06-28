@@ -19,7 +19,7 @@ model/
 ### 主な機能
 - **XGBoost回帰**: ユーモアスコア予測
 - **Optuna最適化**: TPESamplerによるハイパーパラメータ調整
-- **Early Stopping**: 過学習防止
+- **Early Stopping**: 10ラウンドで過学習防止
 - **評価・可視化**: メトリクス計算と特徴量重要度プロット
 
 ## XGBoostClassifier（分類）
@@ -30,7 +30,7 @@ model/
 ### 主な機能
 - **XGBoost分類**: 4クラス分類（0-3クラス）
 - **Optuna最適化**: TPESamplerによるハイパーパラメータ調整（精度ベース）
-- **Early Stopping**: 過学習防止
+- **Early Stopping**: 10ラウンドで過学習防止
 - **評価・可視化**: 分類メトリクス計算と混同行列プロット
 
 ## 共通機能
@@ -62,7 +62,7 @@ metrics = model.evaluate(X_test, y_test, "Test")
 - `min_child_weight`: 1-10
 - `reg_alpha`, `reg_lambda`: 0.0-1.0
 
-注：`n_estimators`は2000固定（Early Stoppingで自動調整）
+注：`n_estimators`は1000固定、`early_stopping_rounds`は10（積極的な過学習防止）
 
 ### 評価メトリクス
 

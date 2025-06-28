@@ -46,8 +46,8 @@ class XGBoostRegressor:
             'eval_metric': 'rmse',
             'random_state': self.random_state,
             'verbosity': 0,
-            'early_stopping_rounds': 50,
-            'n_estimators': 2000,  # early_stoppingで自動調整されるため固定
+            'n_estimators': 1000,  # early_stoppingで自動調整されるため固定
+            'early_stopping_rounds': 10,
             
             # 最適化対象パラメータ
             'max_depth': trial.suggest_int('max_depth', 3, 12),
@@ -129,7 +129,8 @@ class XGBoostRegressor:
                 'n_estimators': 1000,
                 'max_depth': 6,
                 'learning_rate': 0.1,
-                'verbosity': 1
+                'verbosity': 1,
+                'early_stopping_rounds': 10
             }
         else:
             # 最適化されたパラメータに基本設定を追加
@@ -140,10 +141,14 @@ class XGBoostRegressor:
                 'random_state': self.random_state,
                 'verbosity': 1
             })
+            # n_estimatorsが指定されていない場合のデフォルト値
+            if 'n_estimators' not in params:
+                params['n_estimators'] = 1000
+            # early_stopping_roundsが指定されていない場合のデフォルト値
+            if 'early_stopping_rounds' not in params:
+                params['early_stopping_rounds'] = 10
         
         print("モデル訓練中...")
-        # Early stopping設定を初期化時に追加
-        params['early_stopping_rounds'] = 100
         self.model = xgb.XGBRegressor(**params)
         
         # 訓練実行

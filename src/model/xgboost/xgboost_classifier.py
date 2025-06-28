@@ -47,8 +47,8 @@ class XGBoostClassifier:
             'eval_metric': 'mlogloss',
             'random_state': self.random_state,
             'verbosity': 0,
-            'early_stopping_rounds': 50,
-            'n_estimators': 2000,  # early_stoppingで自動調整されるため固定
+            'n_estimators': 1000,  # early_stoppingで自動調整されるため固定
+            'early_stopping_rounds': 10,
             
             # 最適化対象パラメータ
             'max_depth': trial.suggest_int('max_depth', 3, 12),
@@ -133,16 +133,22 @@ class XGBoostClassifier:
                 'eval_metric': 'mlogloss',
                 'random_state': self.random_state,
                 'verbosity': 1,
-                'early_stopping_rounds': 100
+                'n_estimators': 1000,
+                'early_stopping_rounds': 10
             }
         else:
             params.update({
                 'objective': 'multi:softprob',
                 'eval_metric': 'mlogloss',
                 'random_state': self.random_state,
-                'verbosity': 1,
-                'early_stopping_rounds': 100
+                'verbosity': 1
             })
+            # n_estimatorsが指定されていない場合のデフォルト値
+            if 'n_estimators' not in params:
+                params['n_estimators'] = 1000
+            # early_stopping_roundsが指定されていない場合のデフォルト値
+            if 'early_stopping_rounds' not in params:
+                params['early_stopping_rounds'] = 10
         
         print("モデル訓練中...")
         self.model = xgb.XGBClassifier(**params)
