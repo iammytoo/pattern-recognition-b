@@ -30,7 +30,7 @@ def main():
 
     # キャプション処理の開始
     print("\nキャプションを開始します...")
-    qwen_caption_client = QwenCaptionClient(batch_size=64)
+    qwen_caption_client = QwenCaptionClient(batch_size=8)
 
     # 各データセットを処理
     train_processed = process_dataset_split(qwen_caption_client, train, "train")
@@ -42,7 +42,7 @@ def main():
 
 
 def process_dataset_split(caption_client, dataset_split, split_name):
-    """データセットの各分割を処理する関数"""
+    """ データセットの各分割を処理する関数 """
     print(f"{split_name}:")
     
     # textとimageに分割
@@ -66,7 +66,7 @@ def process_dataset_split(caption_client, dataset_split, split_name):
 
 
 def save_datasets(train_data, validation_data, test_data):
-    """処理済みデータセットをCSVで保存する関数"""
+    """ 処理済みデータセットをCSVで保存する関数 """
     output_dir = "data/caption_processed"
     os.makedirs(output_dir, exist_ok=True)
     

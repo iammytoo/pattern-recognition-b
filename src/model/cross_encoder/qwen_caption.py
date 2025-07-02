@@ -8,17 +8,17 @@ from qwen_vl_utils import process_vision_info
 
 
 class QwenCaptionClient:
-    def __init__(self, batch_size: int=16):
+    def __init__(self, model_name: str="Qwen/Qwen2.5-VL-3B-Instruct", batch_size: int=16):
         """ 初期化メソッド """
         self.batch_size = batch_size
 
         self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            "Qwen/Qwen2.5-VL-3B-Instruct", torch_dtype="auto", device_map="auto"
+            model_name, torch_dtype="auto", device_map="auto"
         )
 
         min_pixels = 256*28*28
         max_pixels = 1280*28*28
-        self.processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
+        self.processor = AutoProcessor.from_pretrained(model_name, min_pixels=min_pixels, max_pixels=max_pixels)
 
     
     def run(self, images: List[Any], prompt: str="画像に日本語でキャプションしてください") -> List[str]:
