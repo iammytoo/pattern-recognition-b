@@ -13,6 +13,7 @@ class QwenCrossEncoderClient:
         self.batch_size = batch_size
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
         self.model = AutoModelForCausalLM.from_pretrained(model_name).eval()
+        self.train_model = AutoModelForCausalLM.from_pretrained(model_name)
 
         # 各変数
         self.token_false_id = self.tokenizer.convert_tokens_to_ids("no")
@@ -76,18 +77,27 @@ class QwenCrossEncoderClient:
         return outputs
     
 
-    def train_with_lora(self, train_dataset: Dataset, validation_dataset: Dataset):
+    def train_with_lora(self):
         """ LoRAでファインチューニングするメソッド """
         peft_config = LoraConfig(
             task_type=TaskType.CAUSAL_LM, 
             inference_mode=False, 
             r=8, 
             lora_alpha=32, 
-            lora_dropout=0.1
+            lora_dropout=0.1,
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
+            ]
         )
 
-        train_model = get_peft_model(self.model, peft_config)
-        train_model.print_trainable_parameters()
+        lora_model = get_peft_model(self.train_model, peft_config)
+        lora_model.print_trainable_parameters()
 
         training_args = TrainingArguments(
             output_dir=f"data/cross_encoder/{self.model_name}-lora",
@@ -102,11 +112,15 @@ class QwenCrossEncoderClient:
         )
 
         trainer = Trainer(
-            model=train_model,
+            model=lora_model,
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=validation_dataset
         )
 
         trainer.train()
-        train_model.save_pretrained("output_dir")
+        lora_model.save_pretrained("output_dir")
+
+if __name__ == "__main__":
+    client = QwenCrossEncoderClient()
+    client.train_with_lora()

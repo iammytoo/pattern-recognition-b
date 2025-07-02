@@ -47,12 +47,13 @@ def process_dataset_split(caption_client, dataset_split, split_name):
     
     # textとimageに分割
     text_data  = dataset_split.filter(lambda x: x['odai_type'] == 'text')
-    image_data = dataset_split.filter(lambda x: x['odai_type'] == 'image')
+    image_data = dataset_split.filter(lambda x: x['odai_type'] == 'image')[:10]
     
     # 画像データにキャプションを追加
     if len(image_data) > 0:
         image_captions = caption_client.run(image_data["image"])
-        image_data     = image_data.add_column('odai', image_captions)
+        image_data = image_data.remove_columns(['odai'])
+        image_data = image_data.add_column('odai', image_captions)
     
     # textとimageデータを結合
     combined_data = Dataset.from_dict({
