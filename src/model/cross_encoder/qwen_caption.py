@@ -25,12 +25,12 @@ class QwenCaptionClient:
     def run(self, images: List[Any], prompt: str="画像に日本語でキャプションしてください") -> List[str]:
         """ 実行するメソッド """
         # バッチ分割
+        output_texts = []
         for i in tqdm(range(0, len(images), self.batch_size), desc="キャプション生成中"):
             batch_images = images[i : i + self.batch_size]
 
             # メッセージの作成
             messages = []
-            output_texts = []
             for image in batch_images:
                 # imageの処理
                 if isinstance(image, str):
