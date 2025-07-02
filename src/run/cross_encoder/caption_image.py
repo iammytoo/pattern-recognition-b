@@ -47,7 +47,11 @@ def process_dataset_split(caption_client, dataset_split, split_name):
     
     # textとimageに分割
     text_data  = dataset_split.filter(lambda x: x['odai_type'] == 'text')
-    image_data = dataset_split.filter(lambda x: x['odai_type'] == 'image')[:10]
+    image_data = dataset_split.filter(lambda x: x['odai_type'] == 'image')
+    
+    # テスト用にimage_dataを10件に制限（必要に応じて削除）
+    if len(image_data) > 10:
+        image_data = image_data.select(range(10))
     
     # 画像データにキャプションを追加
     if len(image_data) > 0:
