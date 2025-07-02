@@ -30,7 +30,7 @@ def main():
 
     # キャプション処理の開始
     print("\nキャプションを開始します...")
-    qwen_caption_client = QwenCaptionClient(batch_size=64)
+    qwen_caption_client = QwenCaptionClient(batch_size=32)
 
     # 各データセットを処理
     train_processed      = process_dataset_split(qwen_caption_client, train, "train")
