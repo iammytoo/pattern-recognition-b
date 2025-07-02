@@ -20,22 +20,22 @@ def main():
     dataset = dataloader.get_dataset()
 
     train       = dataset["train"]
-    validatioin = dataset["validation"]
+    validation = dataset["validation"]
     test        = dataset["test"]
 
     print("データ数:")
     print(f"    train     : {len(train)}")
-    print(f"    validation: {len(validatioin)}")
+    print(f"    validation: {len(validation)}")
     print(f"    test      : {len(test)}")
 
     # キャプション処理の開始
     print("\nキャプションを開始します...")
-    qwen_caption_client = QwenCaptionClient(batch_size=32)
+    qwen_caption_client = QwenCaptionClient(batch_size=128)
 
     # 各データセットを処理
-    train_processed = process_dataset_split(qwen_caption_client, train, "train")
-    validation_processed = process_dataset_split(qwen_caption_client, validatioin, "validation")
-    test_processed = process_dataset_split(qwen_caption_client, test, "test")
+    train_processed      = process_dataset_split(qwen_caption_client, train, "train")
+    validation_processed = process_dataset_split(qwen_caption_client, validation, "validation")
+    test_processed       = process_dataset_split(qwen_caption_client, test, "test")
 
     # 結果を保存
     save_datasets(train_processed, validation_processed, test_processed)
@@ -56,10 +56,10 @@ def process_dataset_split(caption_client, dataset_split, split_name):
     
     # textとimageデータを結合
     combined_data = Dataset.from_dict({
-        'id': text_data['id'] + (image_data['id'] if len(image_data) > 0 else []),
-        'odai': text_data['odai'] + (image_data['odai'] if len(image_data) > 0 else []),
-        'answer': text_data['answer'] + (image_data['answer'] if len(image_data) > 0 else []),
-        'odai_type': text_data['odai_type'] + (image_data['odai_type'] if len(image_data) > 0 else [])
+        'odai_type': text_data['odai_type'] + (image_data['odai_type'] if len(image_data) > 0 else []),
+        'odai'     : text_data['odai']      + (image_data['odai']      if len(image_data) > 0 else []),
+        'response' : text_data['response']  + (image_data['response']  if len(image_data) > 0 else []),
+        'score'    : text_data['score']     + (image_data['score']     if len(image_data) > 0 else [])
     })
     
     return combined_data
