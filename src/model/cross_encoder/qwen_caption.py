@@ -19,7 +19,8 @@ class QwenCaptionClient:
         min_pixels = 256*28*28
         max_pixels = 1280*28*28
         self.processor = AutoProcessor.from_pretrained(model_name, min_pixels=min_pixels, max_pixels=max_pixels)
-
+        self.processor.tokenizer.padding_side = 'left'
+        
     
     def run(self, images: List[Any], prompt: str="画像に日本語でキャプションしてください") -> List[str]:
         """ 実行するメソッド """

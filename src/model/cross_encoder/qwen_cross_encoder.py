@@ -1,10 +1,15 @@
+from typing import List
+
+from datasets import Dataset
+from peft import LoraConfig, get_peft_model, TaskType
 import torch
-from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
 
 class QwenCrossEncoderClient:
     def __init__(self, model_name :str="Qwen/Qwen3-Reranker-4B", batch_size: int=16):
         """ 初期化メソッド """
+        self.model_name = model_name
         self.batch_size = batch_size
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
         self.model = AutoModelForCausalLM.from_pretrained(model_name).eval()
@@ -21,11 +26,9 @@ class QwenCrossEncoderClient:
         self.suffix_tokens = self.tokenizer.encode(suffix, add_special_tokens=False)
     
 
-    def _format_instruction(self, instruction, query, doc):
+    def _format_instruction(self, query, doc):
         """ 指示のフォーマット """
-        if instruction is None:
-            instruction = 'Given a web search query, retrieve relevant passages that answer the query'
-        output = "<Instruct>: {instruction}\n<Query>: {query}\n<Document>: {doc}".format(instruction=instruction,query=query, doc=doc)
+        output = "<Query>: {query}\n<Document>: {doc}".format(query=query, doc=doc)
         return output
 
 
@@ -44,7 +47,8 @@ class QwenCrossEncoderClient:
 
 
     @torch.no_grad()
-    def _compute_logits(self, inputs, **kwargs):
+    def _compute_logits(self, inputs):
+        """ スコアの計算メソッド """
         batch_scores = self.model(**inputs).logits[:, -1, :]
         true_vector = batch_scores[:, self.token_true_id]
         false_vector = batch_scores[:, self.token_false_id]
@@ -54,13 +58,55 @@ class QwenCrossEncoderClient:
         return scores
 
 
-    def run(self, pairs):
+    def run(self, odais: List[str], responses: List[str]) -> List[float]:
         """ 実行するメソッド """
-        task = 'Given a web search query, retrieve relevant passages that answer the query'
+        # バッチ分割
+        outputs = []
+        for i in range(0, len(odais), self.batch_size):
+            batch_odais = odais[i : i + self.batch_size]
+            batch_responses = responses[i : i + self.batch_size]
 
-        pairs = [self._format_instruction(task, query, doc) for query, doc in zip(queries, documents)]
+            # メッセージの作成
+            pairs = [self._format_instruction(batch_odais[idx], batch_responses[idx]) for idx in range(self.batch_size)]
 
-        inputs = self._process_inputs(pairs)
-        scores = self._compute_logits(inputs)
+            inputs = self._process_inputs(pairs)
+            scores = self._compute_logits(inputs)
+            outputs.extend(scores)
 
-        print("scores: ", scores)
+        return outputs
+    
+
+    def train_with_lora(self, train_dataset: Dataset, validation_dataset: Dataset):
+        """ LoRAでファインチューニングするメソッド """
+        peft_config = LoraConfig(
+            task_type=TaskType.CAUSAL_LM, 
+            inference_mode=False, 
+            r=8, 
+            lora_alpha=32, 
+            lora_dropout=0.1
+        )
+
+        train_model = get_peft_model(self.model, peft_config)
+        train_model.print_trainable_parameters()
+
+        training_args = TrainingArguments(
+            output_dir=f"data/cross_encoder/{self.model_name}-lora",
+            learning_rate=1e-3,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
+            num_train_epochs=2,
+            weight_decay=0.01,
+            eval_strategy="epoch",
+            save_strategy="epoch",
+            load_best_model_at_end=True,
+        )
+
+        trainer = Trainer(
+            model=train_model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=validation_dataset
+        )
+
+        trainer.train()
+        train_model.save_pretrained("output_dir")
