@@ -68,11 +68,34 @@ def main():
     test_scores = reranker.run(test_pairs, batch_size=128)
 
     print("\n=== 推論結果 ===")
+    print(f"test_pairs数: {len(test_pairs)}")
+    print(f"test_scores数: {len(test_scores)}")
+    print(f"test_scores型: {type(test_scores)}")
+    print(f"test_scores[0]型: {type(test_scores[0]) if test_scores else 'None'}")
+    
+    # test_scoresがネストしたリストの場合は平坦化
+    if test_scores and isinstance(test_scores[0], (list, tuple)):
+        print("test_scoresがネストしたリストのため平坦化します")
+        test_scores = [item for sublist in test_scores for item in sublist]
+        print(f"平坦化後のtest_scores数: {len(test_scores)}")
+    
+    # 長さが一致しない場合の対処
+    if len(test_scores) != len(test_pairs):
+        print(f"警告: test_scoresの長さ({len(test_scores)})とtest_pairsの長さ({len(test_pairs)})が一致しません")
+        # 短い方に合わせる
+        min_length = min(len(test_scores), len(test_pairs))
+        test_scores = test_scores[:min_length]
+        test_pairs = test_pairs[:min_length]
+        test_actual_scores = test_actual_scores[:min_length]
+        print(f"データを{min_length}件に調整しました")
+        
+    # DataFrameの作成（長さを合わせる）
+    data_length = len(test_scores)
     test_result_df = pd.DataFrame({
-        "odai_type"      : test_df['odai_type'],
-        "odai"           : test_df['odai'],
-        "response"       : test_df['response'],
-        "score"          : test_actual_scores,
+        "odai_type"      : test_df['odai_type'][:data_length],
+        "odai"           : test_df['odai'][:data_length],
+        "response"       : test_df['response'][:data_length],
+        "score"          : test_actual_scores[:data_length],
         "predicted_score": test_scores
     })
     print(test_result_df.head())
