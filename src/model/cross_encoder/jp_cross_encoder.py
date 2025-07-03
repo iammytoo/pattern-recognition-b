@@ -59,8 +59,6 @@ class RerankerCrossEncoderClient:
             num_labels=1
         ).to(self.device)
 
-        if self.device == "cuda":
-            self.model.half()
 
     def run(self, pairs: List[Tuple[str, str]], batch_size: int = 32) -> List[float]:
         """ 推論メソッド """
@@ -135,9 +133,6 @@ class RerankerCrossEncoderClient:
         training_model = AutoModelForSequenceClassification.from_pretrained(
             self.model_name, num_labels=1
         )
-
-        if self.device == "cuda":
-            training_model.half()
         
         # LoRAの設定
         peft_config = LoraConfig(
@@ -162,11 +157,17 @@ class RerankerCrossEncoderClient:
             output_dir=output_dir,
             learning_rate=1e-5,
             max_grad_norm=1.0,
-            per_device_train_batch_size=128,
-            per_device_eval_batch_size=128,
+
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
+            gradient_accumulation_steps=8,
+
             num_train_epochs=5,
             weight_decay=0.01,
+
+            fp16=torch.cuda.is_available(),
             bf16=torch.cuda.is_bf16_supported(),
+            
             logging_steps=10,
             save_strategy="epoch",
             report_to="none"
