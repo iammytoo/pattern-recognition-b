@@ -163,7 +163,7 @@ class RerankerCrossEncoderClient:
             per_device_eval_batch_size=32,
             gradient_accumulation_steps=8,
 
-            num_train_epochs=5,
+            num_train_epochs=10,
             weight_decay=0.01,
 
             fp16=not use_bf16,
