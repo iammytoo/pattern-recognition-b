@@ -49,12 +49,27 @@ class RerankerCrossEncoderClient:
         return scores
     
 
+    def _preprocess_function(self, examples):
+        """ データセットの前処理を行うメソッド """
+        pairs = list(zip(examples['odai'], examples['response']))
+
+        model_inputs = self.tokenizer(
+            pairs,
+            truncation=True, 
+            padding="max_length",
+            max_length=512
+        )
+        model_inputs["labels"] = [float(s) for s in examples['score']]
+        return model_inputs
+
+
     def load_lora_adapter(self, adapter_path: str):
         """ 学習済みのLoRAアダプタをモデルに適用するメソッド """
         print(f"LoRAアダプタを {adapter_path} からロードしています...")
         self.model = PeftModel.from_pretrained(self.model, adapter_path)
         self.model.to(self.device)
         print("アダプタのロードが完了しました。")
+
 
     def train_with_lora(self, train_dataset: Dataset, output_dir: str = "data/model/reranker-lora-finetuned"):
         """ LoRAのファインチューニングメソッド """
@@ -82,19 +97,7 @@ class RerankerCrossEncoderClient:
         lora_model.print_trainable_parameters()
 
         # データセットの前処理
-        def preprocess_function(examples):
-            pairs = [(examples['odai'][i], examples['response'][i]) for i in range(len(examples['odai']))]
-
-            model_inputs = self.tokenizer(
-                pairs,
-                truncation=True, 
-                padding="max_length",
-                max_length=512
-            )
-            model_inputs["labels"] = [float(s) for s in examples['score']]
-            return model_inputs
-        
-        tokenized_train_dataset = train_dataset.map(preprocess_function, batched=True, remove_columns=train_dataset.column_names)
+        tokenized_train_dataset = train_dataset.map(self._preprocess_function, batched=True, remove_columns=train_dataset.column_names)
 
         # 学習
         training_args = TrainingArguments(
