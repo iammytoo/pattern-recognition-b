@@ -59,7 +59,7 @@ def main():
 
     # データの変形
     test_pairs = list(zip(test_df['odai'], test_df['response']))
-    test_actual_scores = test_df['score'] = (test_df['score'] - test_df['score'].min()) / (test_df['score'].max() - test_df['score'].min())
+    test_actual_scores = test_df['score'] + min(test_df['score'])
 
     # 推論
     lora_adapter_path = "data/model/reranker-lora-finetuned/final"
