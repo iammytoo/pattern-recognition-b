@@ -11,30 +11,30 @@
   "log_history": [
     {
       "epoch": 0.3088803088803089,
-      "grad_norm": 16.2108097076416,
-      "learning_rate": 9.454545454545456e-06,
-      "loss": 5.3858,
+      "grad_norm": 334.0333557128906,
+      "learning_rate": 9.727272727272728e-06,
+      "loss": 78.5867,
       "step": 10
     },
     {
       "epoch": 0.6177606177606177,
-      "grad_norm": 16.117265701293945,
-      "learning_rate": 8.84848484848485e-06,
-      "loss": 5.1176,
+      "grad_norm": 322.85345458984375,
+      "learning_rate": 9.424242424242425e-06,
+      "loss": 72.3084,
       "step": 20
     },
     {
       "epoch": 0.9266409266409267,
-      "grad_norm": 16.14449119567871,
-      "learning_rate": 8.242424242424243e-06,
-      "loss": 4.7966,
+      "grad_norm": 312.45513916015625,
+      "learning_rate": 9.121212121212122e-06,
+      "loss": 64.1678,
       "step": 30
     }
   ],
   "logging_steps": 10,
-  "max_steps": 165,
+  "max_steps": 330,
   "num_input_tokens_seen": 0,
-  "num_train_epochs": 5,
+  "num_train_epochs": 10,
   "save_steps": 500,
   "stateful_callbacks": {
     "TrainerControl": {

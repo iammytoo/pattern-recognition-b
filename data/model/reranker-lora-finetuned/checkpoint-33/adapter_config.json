@@ -27,10 +27,10 @@
   "rank_pattern": {},
   "revision": null,
   "target_modules": [
-    "query",
+    "dense",
     "key",
     "value",
-    "dense"
+    "query"
   ],
   "task_type": "SEQ_CLS",
   "trainable_token_indices": null,
