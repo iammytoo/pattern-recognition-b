@@ -22,8 +22,13 @@ class QwenCaptionClient:
         self.processor.tokenizer.padding_side = 'left'
         
     
-    def run(self, images: List[Any], prompt: str="画像に日本語でキャプションしてください") -> List[str]:
+    def run(self, images: List[Any]) -> List[str]:
         """ 実行するメソッド """
+        prompt = (
+            "大喜利のお題の画像が与えられます。\n"
+            "この画像から、大喜利のお題のようなキャプションを日本語で作成してください。"
+        )
+        
         # バッチ分割
         output_texts = []
         for i in tqdm(range(0, len(images), self.batch_size), desc="キャプション生成中"):
