@@ -161,13 +161,13 @@ class RerankerCrossEncoderClient:
         # 学習引数の設定（評価に関する項目を追加）
         training_args = TrainingArguments(
             output_dir=output_dir,
-            learning_rate=2e-5,
-            per_device_train_batch_size=16,
-            per_device_eval_batch_size=16,
+            learning_rate=1e-5,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
             gradient_accumulation_steps=4,
             num_train_epochs=5,
             weight_decay=0.01,
-            bf16=torch.cuda.is_bf16_supported(),
+            bf16=False,
             logging_steps=10,
             save_strategy="epoch",
             report_to="none"
