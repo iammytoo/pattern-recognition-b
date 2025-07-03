@@ -22,8 +22,8 @@ def main():
     val_df   = pd.read_csv(val_file_path)
 
     min_value = min(train_df['score'])
-    train_df['score'] = train_df['score'] + min_value
-    val_df['score']   = val_df['score']   + min_value
+    train_df['score'] = train_df['score'] - min_value
+    val_df['score']   = val_df['score']   - min_value
 
     train_dataset = Dataset.from_pandas(train_df)
     val_dataset   = Dataset.from_pandas(val_df)

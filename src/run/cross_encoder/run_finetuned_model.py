@@ -54,12 +54,17 @@ def calculate_ndcg_global(actual_scores, predicted_scores):
 def main():
     """ メインメソッド """
     # --- データの取得 --- #
+    train_data_file_path = "data/caption_processed/train.csv"
     test_data_file_path = "data/caption_processed/test.csv"
-    test_df = pd.read_csv(test_data_file_path)
+
+    train_df = pd.read_csv(train_data_file_path)
+    test_df  = pd.read_csv(test_data_file_path)
 
     # データの変形
     test_pairs = list(zip(test_df['odai'], test_df['response']))
-    test_actual_scores = test_df['score'] + min(test_df['score'])
+
+    min_value = min(train_df['score'])
+    test_actual_scores = test_df['score'] - min_value
 
     # 推論
     lora_adapter_path = "data/model/reranker-lora-finetuned/final"
