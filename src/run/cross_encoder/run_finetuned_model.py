@@ -24,8 +24,8 @@ def calculate_metrics(test_df):
     rmse = np.sqrt(mse)
     r2 = r2_score(actual_scores, predicted_scores)
     
-    # クエリ別NDCG計算
-    ndcg = calculate_ndcg_by_query(test_df)
+    # 全データを1つのクエリとしてNDCG計算
+    ndcg = calculate_ndcg_global(actual_scores, predicted_scores)
     
     return {
         'MSE' : mse,
@@ -35,39 +35,20 @@ def calculate_metrics(test_df):
     }
 
 
-def calculate_ndcg_by_query(df):
-    """お題ごとにNDCGを計算"""
-    ndcg_scores = []
-    queries_processed = 0
-    
-    # お題ごとにグループ化
-    for odai in df['odai'].unique():
-        query_data = df[df['odai'] == odai]
-        
-        if len(query_data) < 2:
-            continue
-            
-        actual = query_data['score'].values
-        predicted = query_data['predicted_score'].values
-        
-        # NDCGは相対的なランキングを評価するため、
-        if len(set(actual)) == 1:
-            continue
-        
+def calculate_ndcg_global(actual_scores, predicted_scores):
+    """全データを1つのクエリとしてNDCGを計算"""
+    try:
         # 2D配列に変換（1クエリ = 1行）
-        actual_2d = np.array([actual])
-        predicted_2d = np.array([predicted])
+        actual_2d = np.array([actual_scores])
+        predicted_2d = np.array([predicted_scores])
         
-        try:
-            ndcg = ndcg_score(actual_2d, predicted_2d)
-            ndcg_scores.append(ndcg)
-            queries_processed += 1
-        except:
-            continue
-    
-    print(f"NDCG計算: {queries_processed}個のクエリを処理 (全{len(df['odai'].unique())}個中)")
-    
-    return np.mean(ndcg_scores) if ndcg_scores else 0.0
+        ndcg = ndcg_score(actual_2d, predicted_2d)
+        print(f"NDCG計算: 全{len(actual_scores)}件のデータを1つのクエリとして処理")
+        
+        return ndcg
+    except Exception as e:
+        print(f"NDCG計算エラー: {e}")
+        return 0.0
 
 
 def main():
