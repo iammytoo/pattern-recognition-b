@@ -41,7 +41,7 @@ class SigmoidRegressionTrainer(Trainer):
         logits = outputs.get("logits")
         
         labels = labels.to(logits.dtype)
-        loss_fct = torch.nn.BCEWithLogitsLoss()
+        loss_fct = torch.nn.MSELoss()
 
         loss = loss_fct(logits.squeeze(), labels.squeeze())
         
@@ -79,10 +79,7 @@ class RerankerCrossEncoderClient:
                     return_tensors="pt"
                 )
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
-                logits = self.model(**inputs).logits
-                
-                activation = torch.nn.Sigmoid()
-                scores = activation(logits).squeeze()
+                scores = self.model(**inputs).logits
                 
                 if scores.numel() == 1:
                     all_scores.append(scores.item())
