@@ -153,6 +153,7 @@ class RerankerCrossEncoderClient:
             tokenized_eval_dataset = eval_dataset.map(self._preprocess_function, batched=True, remove_columns=eval_dataset.column_names)
 
         # 学習引数の設定
+        use_bf16 = torch.cuda.is_bf16_supported()
         training_args = TrainingArguments(
             output_dir=output_dir,
             learning_rate=1e-5,
@@ -165,9 +166,9 @@ class RerankerCrossEncoderClient:
             num_train_epochs=5,
             weight_decay=0.01,
 
-            fp16=torch.cuda.is_available(),
-            bf16=torch.cuda.is_bf16_supported(),
-            
+            fp16=not use_bf16,
+            bf16=use_bf16,
+
             logging_steps=10,
             save_strategy="epoch",
             report_to="none"
