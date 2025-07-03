@@ -104,7 +104,7 @@ def main():
         print(f"{metric_name}: {metric_value:.4f}")
     
     # 結果をCSVに保存
-    output_dir = "data/evaluation_results"
+    output_dir = "data/cross_encoder/result"
     os.makedirs(output_dir, exist_ok=True)
     
     test_result_df.to_csv(f"{output_dir}/test_predictions.csv", index=False)
