@@ -40,11 +40,10 @@ class SigmoidRegressionTrainer(Trainer):
         outputs = model(**inputs)
         logits = outputs.get("logits")
         
-        activation = torch.nn.Sigmoid()
-        preds = activation(logits)
-        
-        loss_fct = torch.nn.MSELoss()
-        loss = loss_fct(preds.squeeze(), labels.squeeze())
+        labels = labels.to(logits.dtype)
+        loss_fct = torch.nn.BCEWithLogitsLoss()
+
+        loss = loss_fct(logits.squeeze(), labels.squeeze())
         
         return (loss, outputs) if return_outputs else loss
 
