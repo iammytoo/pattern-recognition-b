@@ -92,17 +92,42 @@ def main():
         test_scores = test_scores[:min_length]
         test_pairs = test_pairs[:min_length]
         test_actual_scores = test_actual_scores[:min_length]
+        # 元のDataFrameも同じ長さに調整
+        test_df = test_df.iloc[:min_length].copy()
         print(f"データを{min_length}件に調整しました")
         
-    # DataFrameの作成（長さを合わせる）
+    # DataFrameの作成
     data_length = len(test_scores)
+    
+    # 念のため全てのデータを同じ長さに揃える
+    test_df_subset = test_df.iloc[:data_length].copy()
+    test_actual_scores_subset = test_actual_scores[:data_length]
+    
     test_result_df = pd.DataFrame({
-        "odai_type"      : test_df['odai_type'][:data_length],
-        "odai"           : test_df['odai'][:data_length],
-        "response"       : test_df['response'][:data_length],
-        "score"          : test_actual_scores[:data_length],
+        "odai_type"      : test_df_subset['odai_type'].values,
+        "odai"           : test_df_subset['odai'].values,
+        "response"       : test_df_subset['response'].values,
+        "score"          : test_actual_scores_subset,
         "predicted_score": test_scores
     })
+    
+    # データの整合性を確認
+    print(f"最終データ長: {len(test_result_df)}")
+    print(f"odai_type長: {len(test_result_df['odai_type'])}")
+    print(f"predicted_score長: {len(test_result_df['predicted_score'])}")
+    
+    # 対応確認用のサンプル表示
+    print("\n=== データ対応確認（最初の3件） ===")
+    for i in range(min(3, len(test_result_df))):
+        original_pair = (test_result_df.iloc[i]['odai'], test_result_df.iloc[i]['response'])
+        print(f"行{i}: お題='{test_result_df.iloc[i]['odai'][:50]}...', 回答='{test_result_df.iloc[i]['response'][:30]}...', スコア={test_result_df.iloc[i]['score']:.3f}, 予測={test_result_df.iloc[i]['predicted_score']:.3f}")
+        if i < len(test_pairs):
+            expected_pair = test_pairs[i]
+            if original_pair == expected_pair:
+                print(f"     ✓ 対応OK")
+            else:
+                print(f"     ✗ 対応NG - 期待値: {expected_pair}")
+        print()
     print(test_result_df.head())
 
     # 評価指標の計算
