@@ -20,14 +20,14 @@
   "rank_pattern": {},
   "revision": null,
   "target_modules": [
-    "qkv",
-    "fc2",
     "linear",
-    "fc1",
     "dense",
-    "query",
     "key",
+    "query",
+    "qkv",
+    "fc1",
     "value",
+    "fc2",
     "proj"
   ],
   "task_type": "FEATURE_EXTRACTION",
