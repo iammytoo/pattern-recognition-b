@@ -86,7 +86,7 @@ def main():
     print(f"予測スコア範囲: {min(test_result_dataset['predicted_score'])} ~ {max(test_result_dataset['predicted_score'])}")
         
     # DataFrameの作成
-    test_result_df = test_result_dataset.to_pandas()
+    test_result_df = test_result_dataset.select_columns(['odai_type', 'odai', 'response', 'score', 'predicted_score']).to_pandas()
     
     # 対応確認用のサンプル表示
     print("\n=== データ対応確認（最初の3件） ===")
