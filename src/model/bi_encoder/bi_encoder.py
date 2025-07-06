@@ -167,7 +167,7 @@ class BiEncoderClient:
         lora_model.print_trainable_parameters()
         
         # 損失関数とオプティマイザー
-        criterion = nn.CosineEmbeddingLoss()
+        criterion = nn.MSELoss()
         optimizer = torch.optim.AdamW(lora_model.parameters(), lr=learning_rate)
         
         # データセットを分割
@@ -203,8 +203,9 @@ class BiEncoderClient:
                 response_embed = lora_model.get_text_features(**response_tokens)
                 
                 # 損失計算
-                targets = torch.tensor([(score / 2.0) - 1.0 for score in batch_scores]).to(self.device)
-                loss = criterion(odai_embed, response_embed, targets)
+                targets = torch.tensor(batch_scores).to(self.device)
+                predicted_scores = torch.nn.functional.cosine_similarity(odai_embed, response_embed, dim=1)
+                loss = criterion(predicted_scores, targets)
                 
                 # バックプロパゲーション
                 optimizer.zero_grad()
@@ -241,8 +242,9 @@ class BiEncoderClient:
                 response_embed = lora_model.get_text_features(**response_tokens)
                 
                 # 損失計算
-                targets = torch.tensor([(score / 2.0) - 1.0 for score in batch_scores]).to(self.device)
-                loss = criterion(odai_embed, response_embed, targets)
+                targets = torch.tensor(batch_scores).to(self.device)
+                predicted_scores = torch.nn.functional.cosine_similarity(odai_embed, response_embed, dim=1)
+                loss = criterion(predicted_scores, targets)
                 
                 # バックプロパゲーション
                 optimizer.zero_grad()
