@@ -78,21 +78,15 @@ def main():
     
     bi_encoder = BiEncoderClient()
     bi_encoder.load_lora_adapter(lora_adapter_path)
-    test_scores = bi_encoder.run(test_dataset, batch_size=16)
+    test_result_dataset = bi_encoder.run(test_dataset, batch_size=16)
     
     print("\n=== 推論結果 ===")
     print(f"test_dataset数: {len(test_dataset)}")
-    print(f"test_scores数: {len(test_scores)}")
-    print(f"予測スコア範囲: {min(test_scores)} ~ {max(test_scores)}")
+    print(f"test_result_dataset数: {len(test_result_dataset)}")
+    print(f"予測スコア範囲: {min(test_result_dataset['predicted_score'])} ~ {max(test_result_dataset['predicted_score'])}")
         
     # DataFrameの作成
-    test_result_df = pd.DataFrame({
-        "odai_type"      : test_dataset['odai_type'],
-        "odai"           : test_dataset['odai'],
-        "response"       : test_dataset['response'],
-        "score"          : test_dataset['score'],
-        "predicted_score": test_scores
-    })
+    test_result_df = test_result_dataset.to_pandas()
     
     # 対応確認用のサンプル表示
     print("\n=== データ対応確認（最初の3件） ===")

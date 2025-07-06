@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from datasets import Dataset
+from datasets import Dataset, concatenate_datasets
 import japanese_clip as ja_clip
 import numpy as np
 from PIL import Image
@@ -32,7 +32,7 @@ class BiEncoderClient:
             return "cpu"
     
 
-    def run(self, dataset: Dataset, batch_size: int) -> List[float]:
+    def run(self, dataset: Dataset, batch_size: int) -> Dataset:
         """
         実行メソッド
 
@@ -47,10 +47,8 @@ class BiEncoderClient:
         text_dataset  = dataset.filter(lambda x: x['odai_type'] == 'text')
         image_dataset = dataset.filter(lambda x: x['odai_type'] == 'image')
 
-        # score
-        scores = []
-
         # text_dataの推論
+        text_scores = []
         for i in tqdm(range(0, len(text_dataset), batch_size), desc="textデータの推論中..."):
             # データの抽出
             batch_odai     = text_dataset['odai'][i:i + batch_size]
@@ -78,9 +76,14 @@ class BiEncoderClient:
             # cos類似度計算
             batch_score = torch.nn.functional.cosine_similarity(odai_embed, response_embed, dim=1)
             
-            scores.extend(batch_score.detach().cpu().numpy().tolist())
+            text_scores.extend(batch_score.detach().cpu().numpy().tolist())
+
+        # 予測スコアの追加
+        text_dataset = text_dataset.add_column("predicted_score", text_scores)
+
         
         # image_dataの推論
+        image_scores = []
         for i in tqdm(range(0, len(image_dataset), batch_size), desc="imageデータの推論中..."):
             # データの抽出
             batch_odai     = image_dataset['image'][i:i + batch_size]
@@ -121,9 +124,13 @@ class BiEncoderClient:
             # cos類似度計算
             batch_score = torch.nn.functional.cosine_similarity(odai_embed, response_embed, dim=1)
             
-            scores.extend(batch_score.detach().cpu().numpy().tolist())
+            image_scores.extend(batch_score.detach().cpu().numpy().tolist())
+
+        # 予測スコアの追加
+        image_dataset = image_dataset.add_column("predicted_score", image_scores)
         
-        return scores
+        return concatenate_datasets([text_dataset, image_dataset])
+    
     
     def load_lora_adapter(self, adapter_path: str):
         """学習済みのLoRAアダプタをモデルに適用するメソッド"""
