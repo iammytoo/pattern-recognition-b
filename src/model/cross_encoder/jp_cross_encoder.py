@@ -18,8 +18,8 @@ from transformers import (
 def compute_metrics(eval_pred):
     """ 評価指標を計算する関数 """
     predictions, labels = eval_pred
-    activation = torch.nn.Sigmoid()
-    predictions = activation(torch.from_numpy(predictions)).numpy()
+    # tanhで-1~1の範囲に変換
+    predictions = torch.tanh(torch.from_numpy(predictions)).numpy()
     
     predictions = np.squeeze(predictions)
     labels = np.squeeze(labels)
@@ -40,10 +40,13 @@ class SigmoidRegressionTrainer(Trainer):
         outputs = model(**inputs)
         logits = outputs.get("logits")
         
-        labels = labels.to(logits.dtype)
+        # logitsをtanhで-1~1の範囲に変換
+        predictions = torch.tanh(logits)
+        
+        labels = labels.to(predictions.dtype)
         loss_fct = torch.nn.MSELoss()
 
-        loss = loss_fct(logits.squeeze(), labels.squeeze())
+        loss = loss_fct(predictions.squeeze(), labels.squeeze())
         
         return (loss, outputs) if return_outputs else loss
 
@@ -79,7 +82,10 @@ class RerankerCrossEncoderClient:
                     return_tensors="pt"
                 )
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
-                scores = self.model(**inputs).logits
+                logits = self.model(**inputs).logits
+                
+                # logitsをtanhで-1~1の範囲に変換
+                scores = torch.tanh(logits)
                 
                 if scores.numel() == 1:
                     all_scores.append(scores.item())
