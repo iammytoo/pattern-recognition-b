@@ -17,7 +17,8 @@ def main():
     dataloader = Dataloader()
     dataset = dataloader.get_dataset()
 
-    train_dataset = dataset["train"].filter(lambda x: x['odai_type'] == 'image')
+    train_dataset = dataset["train"]
+    train_dataset = train_dataset.filter(lambda x: x['odai_type'] == 'image')
     train_dataset = train_dataset.map(clip_scores, batched=True)
     print(f"スコア範囲調整完了: {min(train_dataset['score'])} ~ {max(train_dataset['score'])}")
 
