@@ -137,7 +137,7 @@ class RerankerCrossEncoderClient:
             r=8,
             lora_alpha=16,
             lora_dropout=0.1,
-            target_modules=["query", "key", "value", "dense"],
+            target_modules=["query", "key", "value", "dense", "fc1", "fc2", "linear"],
         )
         lora_model = get_peft_model(training_model, peft_config)
         lora_model.print_trainable_parameters()
