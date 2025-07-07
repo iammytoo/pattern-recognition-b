@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error, r2_score, ndcg_score
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 from src.model.cross_encoder.jp_cross_encoder import RerankerCrossEncoderClient
 from src.run_final.utils import clip_scores
 

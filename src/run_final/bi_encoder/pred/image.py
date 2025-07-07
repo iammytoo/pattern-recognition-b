@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 from src.dataloader.dataloader import Dataloader
 from src.model.bi_encoder.bi_encoder import BiEncoderClient
 from src.run_final.utils import clip_scores

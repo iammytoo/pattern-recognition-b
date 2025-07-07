@@ -15,7 +15,7 @@ from datasets import Dataset
 import pandas as pd
 from sklearn.decomposition import PCA
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 from src.model.xgboost.xgboost_regressor import XGBoostRegressor
 from src.run_final.utils import clip_scores
 

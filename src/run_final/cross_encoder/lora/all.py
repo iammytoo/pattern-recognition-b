@@ -4,7 +4,7 @@ import sys
 from datasets import Dataset
 import pandas as pd
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 from src.model.cross_encoder.jp_cross_encoder import RerankerCrossEncoderClient
 from src.run_final.utils import clip_scores
 
