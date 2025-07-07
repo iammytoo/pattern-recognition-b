@@ -166,9 +166,8 @@ def save_results(regressor, X_test_pca, test_dataset, save_path):
     
     # 結果DataFrameを作成
     result_df = pd.DataFrame({
-        'odai_type': test_df['odai_type'],
-        'odai': test_df['odai'],
-        'response': test_df['response'],
+        'odai_type': test_df['type'],
+        'odai_id': test_df['odai_id'],
         'score': test_df['score'],
         'predicted_score': test_predictions
     })
@@ -200,9 +199,9 @@ def main():
     test_dataset  = Dataset.from_pandas(test_df)
 
     # imageのフィルター
-    train_dataset = train_dataset.filter(lambda x: x['odai_type'] == 'image')
-    val_dataset   = val_dataset.filter(lambda x: x['odai_type'] == 'image')
-    test_dataset  = test_dataset.filter(lambda x: x['odai_type'] == 'image')
+    train_dataset = train_dataset.filter(lambda x: x['type'] == 'image')
+    val_dataset   = val_dataset.filter(lambda x: x['type'] == 'image')
+    test_dataset  = test_dataset.filter(lambda x: x['type'] == 'image')
 
     # クリッピング
     train_dataset = train_dataset.map(clip_scores, batched=True)

@@ -33,7 +33,7 @@ def compute_metrics(eval_pred):
 
 
 class SigmoidRegressionTrainer(Trainer):
-    """ 損失計算の際にSigmoidを適用するカスタムTrainer """
+    """ 損失計算の際のカスタムTrainer """
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         labels = inputs.pop("labels")
         

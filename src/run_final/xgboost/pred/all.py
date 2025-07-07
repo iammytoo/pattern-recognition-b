@@ -146,14 +146,14 @@ def train_and_evaluate_model(X_train, y_train, X_val, y_val, X_test, y_test, opt
     return regressor, train_metrics, val_metrics, test_metrics
 
 
-def save_results(regressor, X_test_pca, test_dataset, save_path):
+def save_results(regressor, X_test_pca, original_test_dataset, save_path):
     """
     結果の保存
     
     Args:
         regressor: 訓練済みXGBoostモデル
         X_test_pca: テストデータ（PCA後）
-        test_dataset: 元のテストデータセット
+        original_test_dataset: 元のテストデータセット（odai_type等を含む）
         save_path: 保存先ファイルパス
     """
     print("\n--- 結果保存 ---")
@@ -162,14 +162,14 @@ def save_results(regressor, X_test_pca, test_dataset, save_path):
     test_predictions = regressor.predict(X_test_pca)
     
     # 元のテストデータをDataFrameに変換
-    test_df = test_dataset.to_pandas()
+    original_test_df = original_test_dataset.to_pandas()
     
-    # 結果DataFrameを作成
+    # 結果DataFrameを作成（予測結果の長さに合わせて元データを調整）
+    result_length = len(test_predictions)
     result_df = pd.DataFrame({
-        'odai_type': test_df['odai_type'],
-        'odai': test_df['odai'],
-        'response': test_df['response'],
-        'score': test_df['score'],
+        'odai_type': original_test_df['type'][:result_length],
+        'odai_id': original_test_df['odai_id'][:result_length],
+        'score': original_test_df['score'][:result_length],
         'predicted_score': test_predictions
     })
     
