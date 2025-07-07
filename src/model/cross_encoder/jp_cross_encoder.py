@@ -18,8 +18,6 @@ from transformers import (
 def compute_metrics(eval_pred):
     """ 評価指標を計算する関数 """
     predictions, labels = eval_pred
-    activation = torch.nn.Sigmoid()
-    predictions = activation(torch.from_numpy(predictions)).numpy()
     
     predictions = np.squeeze(predictions)
     labels = np.squeeze(labels)
@@ -33,7 +31,7 @@ def compute_metrics(eval_pred):
 
 
 class SigmoidRegressionTrainer(Trainer):
-    """ 損失計算の際にSigmoidを適用するカスタムTrainer """
+    """ 損失計算の際のカスタムTrainer """
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         labels = inputs.pop("labels")
         
@@ -137,7 +135,7 @@ class RerankerCrossEncoderClient:
             r=8,
             lora_alpha=16,
             lora_dropout=0.1,
-            target_modules=["query", "key", "value", "dense"],
+            target_modules=["query", "key", "value", "dense", "fc1", "fc2", "linear"],
         )
         lora_model = get_peft_model(training_model, peft_config)
         lora_model.print_trainable_parameters()
@@ -158,9 +156,9 @@ class RerankerCrossEncoderClient:
 
             per_device_train_batch_size=32,
             per_device_eval_batch_size=32,
-            gradient_accumulation_steps=8,
+            gradient_accumulation_steps=16,
 
-            num_train_epochs=10,
+            num_train_epochs=15,
             weight_decay=0.01,
 
             fp16=not use_bf16,
@@ -176,7 +174,6 @@ class RerankerCrossEncoderClient:
             model=lora_model,
             args=training_args,
             train_dataset=tokenized_train_dataset,
-            eval_dataset=tokenized_eval_dataset,
             compute_metrics=compute_metrics,
         )
         
