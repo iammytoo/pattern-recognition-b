@@ -28,7 +28,7 @@ def main():
     # ファインチューニング
     output_dir =  "data/model/bi-encoder-lora-finetuned_all"
     bi_encoder_client = BiEncoderClient()
-    bi_encoder_client.train_with_lora(train_dataset, output_dir=output_dir, epochs=5, batch_size=batch_size)
+    bi_encoder_client.train_with_lora(train_dataset, output_dir=output_dir, epochs=10, batch_size=batch_size)
 
 
 if __name__ == "__main__":
