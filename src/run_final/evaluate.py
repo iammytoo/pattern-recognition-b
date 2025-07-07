@@ -62,21 +62,10 @@ def calculate_metrics(csv_path):
         true_ranks = scores_to_ranks(df_clean['score'])
         pred_ranks = scores_to_ranks(df_clean['predicted_score'])
         
-        # デバッグ: 最初の10件の順位を表示
-        print(f"    デバッグ: 最初の10件の順位")
-        print(f"    実際スコア:   {df_clean['score'].iloc[:10].tolist()}")
-        print(f"    実際順位:     {true_ranks[:10].tolist()}")
-        print(f"    予測スコア:   {df_clean['predicted_score'].iloc[:10].tolist()}")
-        print(f"    予測順位:     {pred_ranks[:10].tolist()}")
-        
         # nDCG計算（順位が低いほど良いので、最大順位+1から引いて逆転）
         max_rank = max(true_ranks.max(), pred_ranks.max())
         true_relevance = max_rank + 1 - true_ranks
         pred_relevance = max_rank + 1 - pred_ranks
-        
-        print(f"    最大順位: {max_rank}")
-        print(f"    実際関連度:   {true_relevance[:10].tolist()}")
-        print(f"    予測関連度:   {pred_relevance[:10].tolist()}")
         
         # 2D配列に変換してnDCGを計算（1クエリとして扱う）
         try:

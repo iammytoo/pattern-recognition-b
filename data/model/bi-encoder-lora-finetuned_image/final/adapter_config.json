@@ -20,15 +20,15 @@
   "rank_pattern": {},
   "revision": null,
   "target_modules": [
-    "query",
-    "qkv",
-    "dense",
     "value",
+    "key",
+    "qkv",
+    "query",
     "linear",
     "proj",
-    "fc1",
     "fc2",
-    "key"
+    "dense",
+    "fc1"
   ],
   "task_type": "FEATURE_EXTRACTION",
   "use_dora": false,

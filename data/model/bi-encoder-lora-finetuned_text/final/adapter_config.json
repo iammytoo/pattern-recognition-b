@@ -21,14 +21,14 @@
   "revision": null,
   "target_modules": [
     "fc1",
-    "key",
-    "linear",
-    "fc2",
     "value",
     "dense",
-    "query",
     "qkv",
-    "proj"
+    "key",
+    "proj",
+    "linear",
+    "query",
+    "fc2"
   ],
   "task_type": "FEATURE_EXTRACTION",
   "use_dora": false,

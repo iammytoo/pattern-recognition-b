@@ -160,7 +160,7 @@ class RerankerCrossEncoderClient:
             per_device_eval_batch_size=32,
             gradient_accumulation_steps=16,
 
-            num_train_epochs=25,
+            num_train_epochs=15,
             weight_decay=0.01,
 
             fp16=not use_bf16,
@@ -176,7 +176,6 @@ class RerankerCrossEncoderClient:
             model=lora_model,
             args=training_args,
             train_dataset=tokenized_train_dataset,
-            eval_dataset=tokenized_eval_dataset,
             compute_metrics=compute_metrics,
         )
         
