@@ -50,7 +50,7 @@ uv.lock
 logs/
 
 # data
-data/
+data/*
 
 # Test files
 test_*.py
@@ -88,3 +88,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+
+# .gitignore
+!.gitignore
