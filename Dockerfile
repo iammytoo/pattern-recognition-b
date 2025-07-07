@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
 RUN pip install uv
 
 # Pythonの依存関係をコピーしてインストール
-COPY requirements.txt .
-RUN uv pip install --system -r requirements.txt
+COPY requirements_jp_clip.txt .
+RUN uv pip install --system -r requirements_jp_clip.txt
 
 # ソースコードをコピー
 COPY . .
