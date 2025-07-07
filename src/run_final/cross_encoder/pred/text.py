@@ -40,6 +40,20 @@ def main():
     print("\n=== 推論結果 ===")
     print(f"test_pairs数: {len(test_pairs)}")
     print(f"test_scores数: {len(test_scores)}")
+    print(f"test_scores型: {type(test_scores)}")
+    print(f"test_scores[0]型: {type(test_scores[0]) if test_scores else 'None'}")
+    
+    # test_scoresがネストしたリストの場合は平坦化
+    if test_scores and isinstance(test_scores[0], (list, tuple, np.ndarray)):
+        print("test_scoresがネストしたリストのため平坦化します")
+        flat_scores = []
+        for item in test_scores:
+            if isinstance(item, (list, tuple, np.ndarray)):
+                flat_scores.extend(item)
+            else:
+                flat_scores.append(item)
+        test_scores = flat_scores
+        print(f"平坦化後のtest_scores数: {len(test_scores)}")
     
     # データの保存
     test_result_df = pd.DataFrame({
